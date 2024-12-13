@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>たすき掛けのクイズ</title>
+    <title>2次方程式のクイズ</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,7 +50,7 @@
 
 <body>
     <div id="start-screen">
-        <h1>たすき掛けのクイズ</h1>
+        <h1>2次方程式のクイズ</h1>
         <button onclick="startQuiz()">スタート</button>
     </div>
 
@@ -119,10 +119,17 @@
             const commonDivisor = gcd(numerator, denominator);
             numerator /= commonDivisor;
             denominator /= commonDivisor;
+
+            if (denominator < 0) { // 分母が負の場合、符号を分子に移す
+                numerator *= -1;
+                denominator *= -1;
+            }
+
             if (denominator === 1) return `${numerator}`;
-            const sign = numerator < 0 ? '-' : '';
+            const sign = numerator < 0 ? '-' : ''; // 符号を明示的に扱う
             return `${sign}\\frac{${Math.abs(numerator)}}{${Math.abs(denominator)}}`;
         }
+
         function tosolution(numberaa, numberbb, numbercc) {
             let numbera = divideBygcb(numberaa, numberbb, numbercc, numberaa);
             let numberb = divideBygcb(numberaa, numberbb, numbercc, numberbb);
@@ -185,10 +192,8 @@
             else {
 
                 let a, b, c, d;
-                do {
-                    a = getRandomInt(1, 4);
-                    c = getRandomInt(1, 4);
-                } while (a * c === 1); // a * b が 1 の場合再度値を定義
+                a = getRandomInt(1, 4);
+                c = getRandomInt(1, 4);
                 abtimes = a * c;
                 const g = getRandomInt(1, 2);
                 const h = getRandomInt(1, 2);
@@ -220,10 +225,13 @@
 
                 const e = -(a * d + b * c);
                 const f = b * d;
-                let problem = `${a * c}  x^2 ${e === 0 ? '' : (e > 0 ? '+' : '') + (e == 1 ? '' : e == -1 ? '-' : e) + 'x'} ${f === 0 ? '' : (f > 0 ? '+' : '-') + Math.abs(f)} =0`;
+                let problem = `${a * c == 1 ? '' : a * c}  x^2 ${e === 0 ? '' : (e > 0 ? '+' : '') + (e == 1 ? '' : e == -1 ? '-' : e) + 'x'} ${f === 0 ? '' : (f > 0 ? '+' : '-') + Math.abs(f)} =0`;
 
-
-                currentSolution = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                if (toFraction(b, a) == toFraction(d, c)) {
+                    currentSolution = `x=${toFraction(b, a)}`;
+                } else {
+                    currentSolution = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                }
                 problem.trim();
                 options = generateOptions(currentSolution);
                 document.getElementById("problem").innerHTML = '$$' + problem + '$$';
@@ -282,34 +290,51 @@
                             d = j;
                             b = frag[2] / j;
                             if ((a == 1 || areCoprime(a, Math.abs(b)) == 1) && (c == 1 || areCoprime(c, Math.abs(d)) == 1)) {
-                                let wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                                let wrongOption;
+                                if (toFraction(b, a) == toFraction(d, c)) {
+                                    wrongOption = `x=${toFraction(b, a)}`;
+                                } else {
+                                    wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                                }
                                 if (wrongOptions.indexOf(wrongOption) === -1 && wrongOption != correct) {
                                     wrongOptions.push(wrongOption);
                                 }
                             }
-                            [b, d] = [d, b];
-                            if (a != c) {
-                                if ((a == 1 || areCoprime(a, Math.abs(b)) == 1) && (c == 1 || areCoprime(c, Math.abs(d)) == 1)) {
-                                    wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
-                                    if (wrongOptions.indexOf(wrongOption) === -1 && wrongOption != correct) {
-                                        wrongOptions.push(wrongOption);
-                                    }
-                                }
-                            }
-                            [b, d] = [-d, -b];
+                        }
+                        [b, d] = [d, b];
+                        if (a != c) {
                             if ((a == 1 || areCoprime(a, Math.abs(b)) == 1) && (c == 1 || areCoprime(c, Math.abs(d)) == 1)) {
-                                wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                                if (toFraction(b, a) == toFraction(d, c)) {
+                                    wrongOption = `x=${toFraction(b, a)}`;
+                                } else {
+                                    wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                                }
                                 if (wrongOptions.indexOf(wrongOption) === -1 && wrongOption != correct) {
                                     wrongOptions.push(wrongOption);
                                 }
                             }
-                            [b, d] = [d, b];
-                            if (a != c) {
-                                if ((a == 1 || areCoprime(a, Math.abs(b)) == 1) && (c == 1 || areCoprime(c, Math.abs(d)) == 1)) {
+                        }
+                        [b, d] = [-d, -b];
+                        if ((a == 1 || areCoprime(a, Math.abs(b)) == 1) && (c == 1 || areCoprime(c, Math.abs(d)) == 1)) {
+                            if (toFraction(b, a) == toFraction(d, c)) {
+                                wrongOption = `x=${toFraction(b, a)}`;
+                            } else {
+                                wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
+                            }
+                            if (wrongOptions.indexOf(wrongOption) === -1 && wrongOption != correct) {
+                                wrongOptions.push(wrongOption);
+                            }
+                        }
+                        [b, d] = [d, b];
+                        if (a != c) {
+                            if ((a == 1 || areCoprime(a, Math.abs(b)) == 1) && (c == 1 || areCoprime(c, Math.abs(d)) == 1)) {
+                                if (toFraction(b, a) == toFraction(d, c)) {
+                                    wrongOption = `x=${toFraction(b, a)}`;
+                                } else {
                                     wrongOption = `x=${toFraction(b, a)},${toFraction(d, c)}`;
-                                    if (wrongOptions.indexOf(wrongOption) === -1 && wrongOption != correct) {
-                                        wrongOptions.push(wrongOption);
-                                    }
+                                }
+                                if (wrongOptions.indexOf(wrongOption) === -1 && wrongOption != correct) {
+                                    wrongOptions.push(wrongOption);
                                 }
                             }
                         }
